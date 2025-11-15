@@ -34,7 +34,7 @@ class DoctorCard extends StatelessWidget {
             Text(doctor.specialization),
             Row(
               children: [
-                const Icon(Icons.star, size: 16, color: Colors.amber),
+                const Icon(Icons.star, size: 16, color: AppTheme.accentPink), // Toffee Brown
                 const SizedBox(width: 4),
                 Text('${doctor.rating} (${doctor.reviewCount} reviews)'),
               ],

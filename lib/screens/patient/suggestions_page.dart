@@ -53,7 +53,7 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
       case 'high':
         return AppTheme.errorRed;
       case 'medium':
-        return Colors.orange;
+        return AppTheme.accentPink; // Toffee Brown
       default:
         return AppTheme.primaryGreen;
     }

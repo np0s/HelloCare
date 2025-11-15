@@ -18,7 +18,7 @@ class AppointmentCard extends StatelessWidget {
       case 'confirmed':
         return AppTheme.primaryGreen;
       case 'pending':
-        return Colors.orange;
+        return AppTheme.accentPink; // Toffee Brown
       case 'completed':
         return AppTheme.grey;
       case 'cancelled':
