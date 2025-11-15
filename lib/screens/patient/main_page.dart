@@ -122,31 +122,6 @@ class _PatientMainPageState extends State<PatientMainPage> {
             letterSpacing: 1.0,
           ),
         ),
-        actions: [
-          Container(
-            margin: const EdgeInsets.only(right: 8),
-            decoration: BoxDecoration(
-              color: AppTheme.white.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: AppTheme.white.withOpacity(0.3),
-                width: 1.5,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
-                  blurRadius: 8,
-                  offset: Offset(0, 2),
-                ),
-              ],
-            ),
-            child: IconButton(
-              icon: const Icon(Icons.add_circle_outline),
-              onPressed: () => _showAddModuleDialog(context, moduleProvider),
-              tooltip: 'Add Module',
-            ),
-          ),
-        ],
       ),
       drawer: _buildDrawer(context, moduleProvider, userProvider),
       body: Container(
