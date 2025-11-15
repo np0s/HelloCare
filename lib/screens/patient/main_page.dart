@@ -166,97 +166,352 @@ class _PatientMainPageState extends State<PatientMainPage> {
           onRefresh: () async {
             // Refresh data if needed
           },
-          child: moduleProvider.pinnedModules.isEmpty
-            ? Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        gradient: RadialGradient(
-                          colors: [
-                            AppTheme.primaryGreen.withOpacity(0.3),
-                            AppTheme.primaryGreenDark.withOpacity(0.1),
-                          ],
-                        ),
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: AppTheme.primaryGreen.withOpacity(0.3),
-                          width: 2,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppTheme.primaryGreen.withOpacity(0.3),
-                            blurRadius: 20,
-                            spreadRadius: 5,
+          child: CustomScrollView(
+            slivers: [
+              // Greeting Section
+              SliverToBoxAdapter(
+                child: _buildGreetingSection(context, userProvider),
+              ),
+              
+              // Divider
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  child: Divider(
+                    color: AppTheme.divider.withOpacity(0.5),
+                    thickness: 1,
+                    height: 1,
+                  ),
+                ),
+              ),
+              
+              // Modules Section Header
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  AppTheme.primaryGreen.withOpacity(0.3),
+                                  AppTheme.primaryGreenDark.withOpacity(0.2),
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: AppTheme.primaryGreen.withOpacity(0.3),
+                                width: 1.5,
+                              ),
+                            ),
+                            child: const Icon(
+                              Icons.apps,
+                              color: AppTheme.primaryGreen,
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          const Text(
+                            'Quick Access',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700,
+                              color: AppTheme.textPrimary,
+                              letterSpacing: 0.5,
+                            ),
                           ),
                         ],
                       ),
-                      child: const Icon(
-                        Icons.dashboard_outlined,
-                        size: 64,
-                        color: AppTheme.primaryGreen,
+                      Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              AppTheme.primaryGreen.withOpacity(0.2),
+                              AppTheme.primaryGreenDark.withOpacity(0.1),
+                            ],
+                          ),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: AppTheme.primaryGreen.withOpacity(0.3),
+                            width: 1.5,
+                          ),
+                        ),
+                        child: IconButton(
+                          icon: const Icon(
+                            Icons.add_circle_outline,
+                            color: AppTheme.primaryGreen,
+                          ),
+                          onPressed: () => _showAddModuleDialog(context, moduleProvider),
+                          tooltip: 'Add Module',
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              
+              // Modules Grid
+              moduleProvider.pinnedModules.isEmpty
+                ? SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(24),
+                            decoration: BoxDecoration(
+                              gradient: RadialGradient(
+                                colors: [
+                                  AppTheme.primaryGreen.withOpacity(0.3),
+                                  AppTheme.primaryGreenDark.withOpacity(0.1),
+                                ],
+                              ),
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: AppTheme.primaryGreen.withOpacity(0.3),
+                                width: 2,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppTheme.primaryGreen.withOpacity(0.3),
+                                  blurRadius: 20,
+                                  spreadRadius: 5,
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.dashboard_outlined,
+                              size: 64,
+                              color: AppTheme.primaryGreen,
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          const Text(
+                            'No modules pinned',
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w700,
+                              color: AppTheme.textPrimary,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'Tap the + button to add modules',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: AppTheme.textSecondary,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 24),
-                    const Text(
-                      'No modules pinned',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w700,
-                        color: AppTheme.textPrimary,
+                  )
+                : SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                    sliver: SliverGrid(
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 16,
+                        mainAxisSpacing: 16,
+                        childAspectRatio: 1.0,
+                      ),
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          final module = moduleProvider.pinnedModules[index];
+                          return TweenAnimationBuilder<double>(
+                            tween: Tween(begin: 0.0, end: 1.0),
+                            duration: Duration(milliseconds: 400 + (index * 80)),
+                            curve: Curves.easeOutCubic,
+                            builder: (context, value, child) {
+                              return Opacity(
+                                opacity: value,
+                                child: Transform.translate(
+                                  offset: Offset(0, 30 * (1 - value)),
+                                  child: child,
+                                ),
+                              );
+                            },
+                            child: ModuleBlock(
+                              module: module,
+                              onTap: () => _navigateToModule(context, module.id),
+                            ),
+                          );
+                        },
+                        childCount: moduleProvider.pinnedModules.length,
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'Tap the + button to add modules',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: AppTheme.textSecondary,
+                  ),
+              
+              // Bottom padding
+              const SliverToBoxAdapter(
+                child: SizedBox(height: 24),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGreetingSection(BuildContext context, UserProvider userProvider) {
+    final username = userProvider.currentUser?.name ?? 'User';
+    final hour = DateTime.now().hour;
+    String greeting;
+    if (hour < 12) {
+      greeting = 'Good Morning';
+    } else if (hour < 17) {
+      greeting = 'Good Afternoon';
+    } else {
+      greeting = 'Good Evening';
+    }
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TweenAnimationBuilder<double>(
+            tween: Tween(begin: 0.0, end: 1.0),
+            duration: const Duration(milliseconds: 600),
+            curve: Curves.easeOutCubic,
+            builder: (context, value, child) {
+              return Opacity(
+                opacity: value,
+                child: Transform.translate(
+                  offset: Offset(0, 20 * (1 - value)),
+                  child: child,
+                ),
+              );
+            },
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Hello $username! 👋',
+                        style: const TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.w800,
+                          color: AppTheme.textPrimary,
+                          letterSpacing: -0.5,
+                          height: 1.2,
+                        ),
                       ),
-                    ),
+                      const SizedBox(height: 8),
+                      Text(
+                        greeting,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.primaryGreen,
+                          letterSpacing: 0.3,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          TweenAnimationBuilder<double>(
+            tween: Tween(begin: 0.0, end: 1.0),
+            duration: const Duration(milliseconds: 700),
+            curve: Curves.easeOutCubic,
+            builder: (context, value, child) {
+              return Opacity(
+                opacity: value,
+                child: Transform.translate(
+                  offset: Offset(0, 15 * (1 - value)),
+                  child: child,
+                ),
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    AppTheme.primaryGreen.withOpacity(0.15),
+                    AppTheme.primaryGreenDark.withOpacity(0.1),
                   ],
                 ),
-              )
-            : GridView.builder(
-                padding: const EdgeInsets.only(
-                  top: 20,
-                  left: 20,
-                  right: 20,
-                  bottom: 20,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: AppTheme.primaryGreen.withOpacity(0.2),
+                  width: 1.5,
                 ),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 20,
-                  mainAxisSpacing: 20,
-                  childAspectRatio: 1.0,
-                ),
-                itemCount: moduleProvider.pinnedModules.length,
-                itemBuilder: (context, index) {
-                  final module = moduleProvider.pinnedModules[index];
-                  return TweenAnimationBuilder<double>(
-                    tween: Tween(begin: 0.0, end: 1.0),
-                    duration: Duration(milliseconds: 400 + (index * 80)),
-                    curve: Curves.easeOutCubic,
-                    builder: (context, value, child) {
-                      return Opacity(
-                        opacity: value,
-                        child: Transform.translate(
-                          offset: Offset(0, 30 * (1 - value)),
-                          child: child,
-                        ),
-                      );
-                    },
-                    child: ModuleBlock(
-                      module: module,
-                      onTap: () => _navigateToModule(context, module.id),
-                    ),
-                  );
-                },
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.primaryGreen.withOpacity(0.1),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
-        ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              AppTheme.primaryGreen.withOpacity(0.3),
+                              AppTheme.primaryGreenDark.withOpacity(0.2),
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(
+                          Icons.wb_sunny_outlined,
+                          color: AppTheme.primaryGreen,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      const Text(
+                        "What's up today?",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.textPrimary,
+                          letterSpacing: 0.2,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Ready to take care of your health? Explore your modules below and stay on top of your wellness journey.',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: AppTheme.textSecondary,
+                      height: 1.5,
+                      letterSpacing: 0.1,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
