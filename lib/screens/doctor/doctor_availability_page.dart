@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../utils/theme.dart';
 import '../../providers/doctor_provider.dart';
 import '../../providers/user_provider.dart';
@@ -32,9 +33,24 @@ class _DoctorAvailabilityPageState extends State<DoctorAvailabilityPage> {
   Future<void> _loadAvailability() async {
     final doctorProvider = Provider.of<DoctorProvider>(context, listen: false);
     final userProvider = Provider.of<UserProvider>(context, listen: false);
-    final currentUser = userProvider.currentUser;
     
-    if (currentUser == null) {
+    // Get user ID - try from UserProvider first, then Firebase Auth
+    String? userId;
+    var currentUser = userProvider.currentUser;
+    if (currentUser != null) {
+      userId = currentUser.userId;
+    } else {
+      // If user data not loaded, try to get from Firebase Auth
+      final firebaseUser = FirebaseAuth.instance.currentUser;
+      if (firebaseUser != null) {
+        userId = firebaseUser.uid;
+        // Try to load user data
+        await userProvider.loadUserData(userId);
+        currentUser = userProvider.currentUser;
+      }
+    }
+    
+    if (userId == null) {
       setState(() {
         _isLoading = false;
       });
@@ -42,7 +58,7 @@ class _DoctorAvailabilityPageState extends State<DoctorAvailabilityPage> {
     }
 
     try {
-      await doctorProvider.loadDoctor(currentUser.userId);
+      await doctorProvider.loadDoctor(userId);
       final doctor = doctorProvider.selectedDoctor;
       
       if (doctor != null && doctor.availability.isNotEmpty) {
@@ -142,8 +158,22 @@ class _DoctorAvailabilityPageState extends State<DoctorAvailabilityPage> {
           const SizedBox(height: 24),
           ElevatedButton(
             onPressed: () async {
-              final currentUser = userProvider.currentUser;
-              if (currentUser == null) {
+              // Get user ID - try from UserProvider first, then Firebase Auth
+              String? userId;
+              var currentUser = userProvider.currentUser;
+              if (currentUser != null) {
+                userId = currentUser.userId;
+              } else {
+                // If user data not loaded, try to get from Firebase Auth
+                final firebaseUser = FirebaseAuth.instance.currentUser;
+                if (firebaseUser != null) {
+                  userId = firebaseUser.uid;
+                  // Try to load user data
+                  await userProvider.loadUserData(userId);
+                }
+              }
+              
+              if (userId == null) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('User data not loaded. Please try again.'),
@@ -152,8 +182,9 @@ class _DoctorAvailabilityPageState extends State<DoctorAvailabilityPage> {
                 );
                 return;
               }
+              
               final success = await doctorProvider.updateAvailability(
-                doctorId: currentUser.userId,
+                doctorId: userId,
                 availability: _availability,
               );
               if (success && mounted) {
