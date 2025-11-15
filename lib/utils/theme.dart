@@ -115,11 +115,11 @@ class AppTheme {
         ),
       ),
       
-      // Cards - Dark Mode with Glassmorphism
+      // Cards - Dark Mode with Glassmorphism and Neon Glow
       cardTheme: CardThemeData(
-        color: surfaceVariant.withOpacity(0.6),
-        elevation: 8,
-        shadowColor: Colors.black.withOpacity(0.5),
+        color: surfaceVariant.withOpacity(0.4),
+        elevation: 0,
+        shadowColor: primaryGreen.withOpacity(0.3),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
           side: BorderSide(
@@ -130,22 +130,28 @@ class AppTheme {
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       ),
       
-      // Elevated Buttons - Webtoon Style (Bubbly)
+      // Elevated Buttons - Webtoon Style with Neon Glow
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: primaryGreen,
           foregroundColor: white,
-          elevation: 6,
-          shadowColor: primaryGreen.withOpacity(0.4),
+          elevation: 0,
+          shadowColor: primaryGreen.withOpacity(0.5),
           padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
+            side: BorderSide(
+              color: white.withOpacity(0.3),
+              width: 1.5,
+            ),
           ),
           textStyle: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w700,
             letterSpacing: 0.5,
           ),
+        ).copyWith(
+          elevation: MaterialStateProperty.all(0),
         ),
       ),
       
@@ -272,15 +278,15 @@ class AppTheme {
         size: 24,
       ),
       
-      // Dialog - Dark Mode with Glassmorphism
+      // Dialog - Dark Mode with Glassmorphism and Neon Glow
       dialogTheme: DialogThemeData(
-        backgroundColor: surfaceVariant.withOpacity(0.95),
-        elevation: 16,
-        shadowColor: Colors.black.withOpacity(0.6),
+        backgroundColor: surfaceVariant.withOpacity(0.9),
+        elevation: 0,
+        shadowColor: primaryGreen.withOpacity(0.4),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(28),
           side: BorderSide(
-            color: white.withOpacity(0.1),
+            color: white.withOpacity(0.2),
             width: 2,
           ),
         ),
@@ -318,11 +324,11 @@ class AppTheme {
         ),
       ),
       
-      // Floating Action Button
+      // Floating Action Button with Neon Glow
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         backgroundColor: primaryGreen,
         foregroundColor: black,
-        elevation: 4,
+        elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),

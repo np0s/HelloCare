@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../utils/theme.dart';
 import '../../utils/constants.dart';
+import '../../utils/glass_effects.dart';
 import '../../providers/module_provider.dart';
 import '../../providers/user_provider.dart';
 import '../../widgets/module_block.dart';
@@ -415,27 +416,11 @@ class _PatientMainPageState extends State<PatientMainPage> {
             },
             child: Container(
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    AppTheme.primaryGreen.withOpacity(0.15),
-                    AppTheme.primaryGreenDark.withOpacity(0.1),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: AppTheme.primaryGreen.withOpacity(0.2),
-                  width: 1.5,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppTheme.primaryGreen.withOpacity(0.1),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+              decoration: GlassEffects.glassCard(
+                primaryColor: AppTheme.surfaceVariant,
+                accentColor: AppTheme.primaryGreen,
+                opacity: 0.3,
+                borderRadius: 20.0,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -452,6 +437,17 @@ class _PatientMainPageState extends State<PatientMainPage> {
                             ],
                           ),
                           borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: AppTheme.primaryGreen.withOpacity(0.5),
+                            width: 1.5,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppTheme.primaryGreen.withOpacity(0.4),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
                         ),
                         child: const Icon(
                           Icons.wb_sunny_outlined,
