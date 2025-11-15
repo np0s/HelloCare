@@ -21,7 +21,6 @@ class _PatientMainPageState extends State<PatientMainPage> {
     final userProvider = Provider.of<UserProvider>(context);
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundGreen,
       appBar: AppBar(
         title: const Text('HelloCare'),
         actions: [
@@ -103,10 +102,10 @@ class _PatientMainPageState extends State<PatientMainPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(
-                  Icons.medical_services,
-                  size: 48,
-                  color: AppTheme.white,
+                Image.asset(
+                  'assets/logo.webp',
+                  height: 48,
+                  fit: BoxFit.contain,
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -222,9 +221,7 @@ class _PatientMainPageState extends State<PatientMainPage> {
                   color: isPinned ? AppTheme.primaryGreen : AppTheme.grey,
                 ),
                 onTap: () {
-                  if (!isPinned) {
-                    moduleProvider.togglePin(module.id);
-                  }
+                  moduleProvider.togglePin(module.id);
                   Navigator.pop(context);
                 },
               );
