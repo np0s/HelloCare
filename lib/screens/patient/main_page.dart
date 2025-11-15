@@ -130,7 +130,14 @@ class _PatientMainPageState extends State<PatientMainPage> {
             final isPinned = moduleProvider.pinnedModules
                 .any((pinned) => pinned.id == module.id);
             return ListTile(
-              leading: Text(module.icon, style: const TextStyle(fontSize: 24)),
+              leading: module.icon.startsWith('assets/')
+                  ? Image.asset(
+                      module.icon,
+                      width: 24,
+                      height: 24,
+                      fit: BoxFit.contain,
+                    )
+                  : Text(module.icon, style: const TextStyle(fontSize: 24)),
               title: Text(module.title),
               trailing: IconButton(
                 icon: Icon(
@@ -214,7 +221,14 @@ class _PatientMainPageState extends State<PatientMainPage> {
               final isPinned = moduleProvider.pinnedModules
                   .any((pinned) => pinned.id == module.id);
               return ListTile(
-                leading: Text(module.icon, style: const TextStyle(fontSize: 24)),
+                leading: module.icon.startsWith('assets/')
+                    ? Image.asset(
+                        module.icon,
+                        width: 24,
+                        height: 24,
+                        fit: BoxFit.contain,
+                      )
+                    : Text(module.icon, style: const TextStyle(fontSize: 24)),
                 title: Text(module.title),
                 trailing: Icon(
                   isPinned ? Icons.check : Icons.add,

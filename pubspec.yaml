@@ -108,6 +108,7 @@ flutter:
   assets:
     - assets/logo.webp
     - assets/icon_1024.png
+    - assets/icons/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
