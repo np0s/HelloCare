@@ -6,6 +6,7 @@ import '../../utils/theme.dart';
 import '../../providers/doctor_provider.dart';
 import '../../providers/appointment_provider.dart';
 import '../../providers/user_provider.dart';
+import '../../models/doctor.dart';
 import '../../widgets/payment_mock_dialog.dart';
 
 class BookAppointmentPage extends StatefulWidget {
@@ -21,6 +22,7 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
   DateTime? _selectedDate;
   String? _selectedTime;
   final _notesController = TextEditingController();
+  Doctor? _selectedDoctorData;
 
   @override
   void initState() {
@@ -37,12 +39,80 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
     super.dispose();
   }
 
+  bool _isDateAvailable(DateTime date) {
+    if (_selectedDoctorData == null || _selectedDoctorData!.availability.isEmpty) {
+      return false;
+    }
+
+    // Get day of week (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
+    final dayOfWeek = date.weekday; // 1 = Monday, 7 = Sunday
+    final dayNames = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+    final dayName = dayNames[dayOfWeek == 7 ? 6 : dayOfWeek - 1];
+
+    final dayAvailability = _selectedDoctorData!.availability[dayName];
+    
+    // Date is available if the day has availability enabled and start/end times are set
+    return dayAvailability != null &&
+           dayAvailability.available == true &&
+           dayAvailability.start != null &&
+           dayAvailability.end != null &&
+           dayAvailability.start!.isNotEmpty &&
+           dayAvailability.end!.isNotEmpty;
+  }
+
+  DateTime? _findFirstAvailableDate(DateTime startDate, DateTime endDate) {
+    DateTime current = startDate;
+    while (current.isBefore(endDate) || current.isAtSameMomentAs(endDate)) {
+      if (_isDateAvailable(current)) {
+        return current;
+      }
+      current = current.add(const Duration(days: 1));
+    }
+    return null;
+  }
+
   Future<void> _selectDate() async {
+    if (_selectedDoctorData == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select a doctor first'),
+          backgroundColor: AppTheme.errorRed,
+        ),
+      );
+      return;
+    }
+
+    final now = DateTime.now();
+    final firstDate = now;
+    final lastDate = now.add(const Duration(days: 90));
+    
+    // Find the first available date to use as initial date
+    DateTime? initialDate = _selectedDate;
+    if (initialDate == null || !_isDateAvailable(initialDate)) {
+      initialDate = _findFirstAvailableDate(firstDate, lastDate);
+    }
+    
+    // If no available dates found, show error
+    if (initialDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No available dates found for this doctor'),
+          backgroundColor: AppTheme.errorRed,
+        ),
+      );
+      return;
+    }
+
     final picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.now().add(const Duration(days: 1)),
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 90)),
+      initialDate: initialDate,
+      firstDate: firstDate,
+      lastDate: lastDate,
+      selectableDayPredicate: (DateTime date) {
+        // Only allow dates where the doctor has availability
+        return _isDateAvailable(date);
+      },
+      helpText: 'Select a date when the doctor is available',
     );
     if (picked != null) {
       setState(() {
@@ -142,7 +212,12 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
               _currentStep--;
             });
           } else {
-            context.pop();
+            // Check if we can pop, otherwise navigate to a safe route
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go('/patient/main');
+            }
           }
         },
         steps: [
@@ -162,10 +237,21 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
                             subtitle: Text(doctor.specialization),
                             value: doctor.doctorId,
                             groupValue: _selectedDoctorId,
-                            onChanged: (value) {
+                            onChanged: (value) async {
                               setState(() {
                                 _selectedDoctorId = value;
+                                _selectedDate = null; // Reset date when doctor changes
+                                _selectedTime = null;
                               });
+                              
+                              // Load the selected doctor's full data including availability
+                              if (value != null) {
+                                final doctorProvider = Provider.of<DoctorProvider>(context, listen: false);
+                                await doctorProvider.loadDoctor(value);
+                                setState(() {
+                                  _selectedDoctorData = doctorProvider.selectedDoctor;
+                                });
+                              }
                             },
                           );
                         },

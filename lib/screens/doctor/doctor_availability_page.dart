@@ -12,7 +12,7 @@ class DoctorAvailabilityPage extends StatefulWidget {
 }
 
 class _DoctorAvailabilityPageState extends State<DoctorAvailabilityPage> {
-  final Map<String, Map<String, dynamic>> _availability = {
+  Map<String, Map<String, dynamic>> _availability = {
     'monday': {'start': '09:00', 'end': '17:00', 'available': true},
     'tuesday': {'start': '09:00', 'end': '17:00', 'available': true},
     'wednesday': {'start': '09:00', 'end': '17:00', 'available': true},
@@ -21,6 +21,83 @@ class _DoctorAvailabilityPageState extends State<DoctorAvailabilityPage> {
     'saturday': {'start': null, 'end': null, 'available': false},
     'sunday': {'start': null, 'end': null, 'available': false},
   };
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAvailability();
+  }
+
+  Future<void> _loadAvailability() async {
+    final doctorProvider = Provider.of<DoctorProvider>(context, listen: false);
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final currentUser = userProvider.currentUser;
+    
+    if (currentUser == null) {
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
+
+    try {
+      await doctorProvider.loadDoctor(currentUser.userId);
+      final doctor = doctorProvider.selectedDoctor;
+      
+      if (doctor != null && doctor.availability.isNotEmpty) {
+        setState(() {
+          // Convert DoctorAvailability objects to the format expected by the UI
+          _availability = {
+            'monday': {
+              'start': doctor.availability['monday']?.start,
+              'end': doctor.availability['monday']?.end,
+              'available': doctor.availability['monday']?.available ?? false,
+            },
+            'tuesday': {
+              'start': doctor.availability['tuesday']?.start,
+              'end': doctor.availability['tuesday']?.end,
+              'available': doctor.availability['tuesday']?.available ?? false,
+            },
+            'wednesday': {
+              'start': doctor.availability['wednesday']?.start,
+              'end': doctor.availability['wednesday']?.end,
+              'available': doctor.availability['wednesday']?.available ?? false,
+            },
+            'thursday': {
+              'start': doctor.availability['thursday']?.start,
+              'end': doctor.availability['thursday']?.end,
+              'available': doctor.availability['thursday']?.available ?? false,
+            },
+            'friday': {
+              'start': doctor.availability['friday']?.start,
+              'end': doctor.availability['friday']?.end,
+              'available': doctor.availability['friday']?.available ?? false,
+            },
+            'saturday': {
+              'start': doctor.availability['saturday']?.start,
+              'end': doctor.availability['saturday']?.end,
+              'available': doctor.availability['saturday']?.available ?? false,
+            },
+            'sunday': {
+              'start': doctor.availability['sunday']?.start,
+              'end': doctor.availability['sunday']?.end,
+              'available': doctor.availability['sunday']?.available ?? false,
+            },
+          };
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,9 +109,11 @@ class _DoctorAvailabilityPageState extends State<DoctorAvailabilityPage> {
       appBar: AppBar(
         title: const Text('Manage Availability'),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
           ..._availability.entries.map((entry) {
             final day = entry.key;
             final schedule = entry.value;
