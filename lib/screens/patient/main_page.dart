@@ -80,6 +80,26 @@ class PatientMainPage extends StatefulWidget {
 
 class _PatientMainPageState extends State<PatientMainPage> {
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeModules();
+    });
+  }
+
+  Future<void> _initializeModules() async {
+    final moduleProvider = Provider.of<ModuleProvider>(context, listen: false);
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final role = userProvider.currentUser?.role ?? 'patient';
+    
+    // Check if modules are already initialized by checking if allModules is empty
+    if (moduleProvider.allModules.isEmpty || 
+        (role == 'patient' && moduleProvider.allModules.any((m) => m.id.startsWith('doctor_')))) {
+      await moduleProvider.initializeForRole(role);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final moduleProvider = Provider.of<ModuleProvider>(context);
     final userProvider = Provider.of<UserProvider>(context);

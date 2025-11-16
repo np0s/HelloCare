@@ -222,7 +222,59 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
         },
         steps: [
           Step(
-            title: const Text('Select Doctor'),
+            title: Row(
+              children: [
+                const Text('Select Doctor'),
+                if (_selectedDoctorId != null) ...[
+                  const SizedBox(width: 12),
+                  Builder(
+                    builder: (context) {
+                      final doctor = doctorProvider.doctors
+                          .where((d) => d.doctorId == _selectedDoctorId)
+                          .firstOrNull;
+                      if (doctor == null) return const SizedBox.shrink();
+                      return Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              AppTheme.primaryGreen,
+                              AppTheme.primaryGreenDark,
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppTheme.primaryGreen.withOpacity(0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Flexible(
+                              child: Text(
+                                doctor.name,
+                                style: const TextStyle(
+                                  color: AppTheme.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ],
+            ),
             content: doctorProvider.isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : doctorProvider.doctors.isEmpty
@@ -258,7 +310,48 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
                       ),
           ),
           Step(
-            title: const Text('Select Date'),
+            title: Row(
+              children: [
+                const Text('Select Date'),
+                if (_selectedDate != null) ...[
+                  const SizedBox(width: 12),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          AppTheme.primaryGreen,
+                          AppTheme.primaryGreenDark,
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppTheme.primaryGreen.withOpacity(0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          DateFormat('MMM dd, yyyy').format(_selectedDate!),
+                          style: const TextStyle(
+                            color: AppTheme.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ],
+            ),
             content: Column(
               children: [
                 ElevatedButton.icon(
@@ -274,7 +367,48 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
             ),
           ),
           Step(
-            title: const Text('Select Time'),
+            title: Row(
+              children: [
+                const Text('Select Time'),
+                if (_selectedTime != null) ...[
+                  const SizedBox(width: 12),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          AppTheme.primaryGreen,
+                          AppTheme.primaryGreenDark,
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppTheme.primaryGreen.withOpacity(0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          _selectedTime!,
+                          style: const TextStyle(
+                            color: AppTheme.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ],
+            ),
             content: _selectedDate == null
                 ? const Text('Please select a date first')
                 : FutureBuilder(
@@ -287,38 +421,125 @@ class _BookAppointmentPageState extends State<BookAppointmentPage> {
                         return const Center(child: CircularProgressIndicator());
                       }
                       final slots = snapshot.data?['slots'] as List? ?? [];
-                      return slots.isEmpty
-                          ? const Text('No available slots')
-                          : GridView.builder(
-                              shrinkWrap: true,
-                              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 3,
-                                childAspectRatio: 2,
-                              ),
-                              itemCount: slots.length,
-                              itemBuilder: (context, index) {
-                                final slot = slots[index];
-                                final isAvailable = slot['available'] == true;
-                                final time = slot['time'];
-                                return ElevatedButton(
-                                  onPressed: isAvailable
-                                      ? () {
-                                          setState(() {
-                                            _selectedTime = time;
-                                          });
-                                        }
-                                      : null,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: _selectedTime == time
-                                        ? AppTheme.primaryGreen
-                                        : isAvailable
-                                            ? AppTheme.lightGreen
-                                            : AppTheme.lightGrey,
+                      if (slots.isEmpty) {
+                        return const Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(16.0),
+                            child: Text('No available slots'),
+                          ),
+                        );
+                      }
+                      
+                      // Separate available and unavailable slots
+                      final availableSlots = <Map<String, dynamic>>[];
+                      final unavailableSlots = <Map<String, dynamic>>[];
+                      
+                      for (var slot in slots) {
+                        if (slot['available'] == true) {
+                          availableSlots.add(slot);
+                        } else {
+                          unavailableSlots.add(slot);
+                        }
+                      }
+                      
+                      return SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (availableSlots.isNotEmpty) ...[
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                                child: Text(
+                                  'Available Times',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppTheme.textSecondary,
                                   ),
-                                  child: Text(time),
-                                );
-                              },
-                            );
+                                ),
+                              ),
+                              Wrap(
+                                spacing: 10,
+                                runSpacing: 10,
+                                children: availableSlots.map((slot) {
+                                  final time = slot['time'];
+                                  final isSelected = _selectedTime == time;
+                                  return FilterChip(
+                                    label: Text(
+                                      time,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: isSelected
+                                            ? FontWeight.w600
+                                            : FontWeight.w500,
+                                        color: isSelected
+                                            ? AppTheme.white
+                                            : AppTheme.textPrimary,
+                                      ),
+                                    ),
+                                    selected: isSelected,
+                                    onSelected: (selected) {
+                                      setState(() {
+                                        _selectedTime = selected ? time : null;
+                                      });
+                                    },
+                                    selectedColor: AppTheme.primaryGreenDark,
+                                    backgroundColor: AppTheme.surfaceVariant.withOpacity(0.5),
+                                    checkmarkColor: AppTheme.white,
+                                    side: BorderSide(
+                                      color: isSelected
+                                          ? AppTheme.primaryGreen
+                                          : AppTheme.border.withOpacity(0.3),
+                                      width: isSelected ? 1.5 : 1,
+                                    ),
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  );
+                                }).toList(),
+                              ),
+                              const SizedBox(height: 16),
+                            ],
+                            if (unavailableSlots.isNotEmpty) ...[
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                                child: Text(
+                                  'Unavailable Times',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppTheme.textSecondary,
+                                  ),
+                                ),
+                              ),
+                              Wrap(
+                                spacing: 10,
+                                runSpacing: 10,
+                                children: unavailableSlots.map((slot) {
+                                  final time = slot['time'];
+                                  return FilterChip(
+                                    label: Text(
+                                      time,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: AppTheme.textDisabled,
+                                      ),
+                                    ),
+                                    selected: false,
+                                    onSelected: null,
+                                    backgroundColor: AppTheme.lightGrey.withOpacity(0.3),
+                                    side: BorderSide(
+                                      color: AppTheme.border.withOpacity(0.2),
+                                      width: 1,
+                                    ),
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  );
+                                }).toList(),
+                              ),
+                            ],
+                          ],
+                        ),
+                      );
                     },
                   ),
           ),

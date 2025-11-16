@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:typed_data';
 import '../../utils/theme.dart';
+import '../../utils/glass_effects.dart';
 import '../../providers/report_provider.dart';
 import '../../widgets/pdf_viewer.dart';
 
@@ -96,33 +97,7 @@ class _ReportDetailPageState extends State<ReportDetailPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          report.title,
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        if (report.category != null)
-                          Text('Category: ${report.category}'),
-                        if (report.doctorName != null)
-                          Text('Doctor: ${report.doctorName}'),
-                        if (report.clinicName != null)
-                          Text('Clinic: ${report.clinicName}'),
-                        Text('Report Date: ${report.reportDate.toString().split(' ')[0]}'),
-                        Text('Uploaded: ${report.uploadDate.toString().split(' ')[0]}'),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
+                // PDF/Image Viewer Section (no background)
                 if (_isLoadingUrl)
                   const SizedBox(
                     height: 600,
@@ -159,12 +134,238 @@ class _ReportDetailPageState extends State<ReportDetailPage> {
                     ),
                   )
                 else if (report.fileType == 'pdf')
-                  SizedBox(
-                    height: 600,
-                    child: PDFViewer(url: _downloadUrl!),
-                  )
+                  PDFViewer(url: _downloadUrl!)
                 else
                   _ImageWidget(downloadUrl: _downloadUrl!, onRetry: _loadDownloadUrl),
+                const SizedBox(height: 32),
+                // Divider before Additional Details
+                Divider(
+                  color: AppTheme.primaryGreen.withOpacity(0.3),
+                  thickness: 2,
+                  height: 1,
+                ),
+                const SizedBox(height: 24),
+                // Additional Details Section
+                Row(
+                  children: [
+                    Container(
+                      width: 4,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        color: AppTheme.primaryGreen,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    const Text(
+                      'Additional Details',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.textPrimary,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                // Category field
+                if (report.category != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          decoration: GlassEffects.glassCard(
+                            primaryColor: AppTheme.primaryGreen,
+                            accentColor: AppTheme.primaryGreenLight,
+                            opacity: 0.5,
+                            borderRadius: 12.0,
+                          ),
+                          child: const Text(
+                            'Category',
+                            style: TextStyle(
+                              color: AppTheme.textPrimary,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            child: Text(
+                              report.category!,
+                              style: const TextStyle(
+                                color: AppTheme.textPrimary,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                // Doctor field
+                if (report.doctorName != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          decoration: GlassEffects.glassCard(
+                            primaryColor: AppTheme.accentBlue,
+                            accentColor: AppTheme.primaryGreenDark,
+                            opacity: 0.5,
+                            borderRadius: 12.0,
+                          ),
+                          child: const Text(
+                            'Doctor',
+                            style: TextStyle(
+                              color: AppTheme.textPrimary,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            child: Text(
+                              report.doctorName!,
+                              style: const TextStyle(
+                                color: AppTheme.textPrimary,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                // Clinic field
+                if (report.clinicName != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          decoration: GlassEffects.glassCard(
+                            primaryColor: AppTheme.accentPink,
+                            accentColor: AppTheme.errorRed,
+                            opacity: 0.5,
+                            borderRadius: 12.0,
+                          ),
+                          child: const Text(
+                            'Clinic',
+                            style: TextStyle(
+                              color: AppTheme.textPrimary,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            child: Text(
+                              report.clinicName!,
+                              style: const TextStyle(
+                                color: AppTheme.textPrimary,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                // Report Date field
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        decoration: GlassEffects.glassCard(
+                          primaryColor: AppTheme.primaryGreenDark,
+                          accentColor: AppTheme.darkGreen,
+                          opacity: 0.5,
+                          borderRadius: 12.0,
+                        ),
+                        child: const Text(
+                          'Report Date',
+                          style: TextStyle(
+                            color: AppTheme.textPrimary,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          child: Text(
+                            report.reportDate.toString().split(' ')[0],
+                            style: const TextStyle(
+                              color: AppTheme.textPrimary,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Uploaded Date field
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        decoration: GlassEffects.glassCard(
+                          primaryColor: AppTheme.surfaceVariant,
+                          accentColor: AppTheme.accentPurple,
+                          opacity: 0.5,
+                          borderRadius: 12.0,
+                        ),
+                        child: const Text(
+                          'Uploaded',
+                          style: TextStyle(
+                            color: AppTheme.textPrimary,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          child: Text(
+                            report.uploadDate.toString().split(' ')[0],
+                            style: const TextStyle(
+                              color: AppTheme.textPrimary,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
