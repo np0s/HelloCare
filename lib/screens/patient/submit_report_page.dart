@@ -114,13 +114,92 @@ class _SubmitReportPageState extends State<SubmitReportPage> {
     );
 
     if (success && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Report submitted successfully'),
-          backgroundColor: AppTheme.primaryGreen,
-        ),
+      // Show success dialog
+      await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return Dialog(
+            backgroundColor: Colors.transparent,
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    AppTheme.surfaceVariant.withOpacity(0.95),
+                    AppTheme.surfaceDark.withOpacity(0.95),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                  color: AppTheme.primaryGreen.withOpacity(0.3),
+                  width: 1,
+                ),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Success icon
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppTheme.primaryGreen.withOpacity(0.2),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.check_circle,
+                      color: AppTheme.primaryGreen,
+                      size: 64,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  // Success message
+                  const Text(
+                    'Report Uploaded Successfully!',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.textPrimary,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 32),
+                  // OK button
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        // Navigate to homepage
+                        context.go('/patient/main');
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primaryGreen,
+                        foregroundColor: AppTheme.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        elevation: 4,
+                        shadowColor: AppTheme.primaryGreen.withOpacity(0.4),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: const Text(
+                        'OK',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
       );
-      context.pop();
     } else if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

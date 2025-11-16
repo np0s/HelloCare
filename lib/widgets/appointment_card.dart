@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../utils/theme.dart';
 import '../utils/glass_effects.dart';
@@ -44,7 +45,13 @@ class AppointmentCard extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: null,
+          onTap: () {
+            if (isPatientView) {
+              context.push('/patient/appointment/${appointment.appointmentId}');
+            } else {
+              context.push('/doctor/appointment/${appointment.appointmentId}');
+            }
+          },
           borderRadius: BorderRadius.circular(20),
           child: Padding(
             padding: const EdgeInsets.all(16),

@@ -8,8 +8,8 @@ class ApiService {
   ApiService() {
     _dio = Dio(BaseOptions(
       baseUrl: baseUrl,
-      connectTimeout: const Duration(seconds: 30),
-      receiveTimeout: const Duration(seconds: 30),
+      connectTimeout: const Duration(seconds: 300),
+      receiveTimeout: const Duration(seconds: 300),
     ));
 
     _dio.interceptors.add(InterceptorsWrapper(
