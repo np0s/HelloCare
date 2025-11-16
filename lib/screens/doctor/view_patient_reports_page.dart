@@ -203,79 +203,79 @@ class _ViewPatientReportsPageState extends State<ViewPatientReportsPage> {
                         // Reports List
                         Expanded(
                           flex: 1,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                               if (_aiSummary != null)
                                 Padding(
                                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                                   child: Text(
                                     'Reports',
-                                    style: TextStyle(
+                                      style: TextStyle(
                                       fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppTheme.textPrimary,
+                                        fontWeight: FontWeight.bold,
+                                    color: AppTheme.textPrimary,
                                     ),
                                   ),
                                 ),
-                              Expanded(
-                                child: ListView.builder(
-                                  padding: const EdgeInsets.all(16),
-                                  itemCount: _reports!.length,
-                                  itemBuilder: (context, index) {
-                                    final report = _reports![index];
-                                    // Safely extract reportDate - handle both string and Map (Timestamp) formats
-                                    String reportDateStr = '';
-                                    final reportDate = report['reportDate'];
-                                    if (reportDate != null) {
-                                      if (reportDate is String) {
-                                        // Already a string, format it nicely
-                                        try {
-                                          final date = DateTime.parse(reportDate);
-                                          reportDateStr = '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
-                                        } catch (e) {
-                                          reportDateStr = reportDate;
-                                        }
-                                      } else if (reportDate is Map) {
-                                        // Firestore Timestamp format - extract seconds
-                                        final seconds = reportDate['seconds'] ?? reportDate['_seconds'];
-                                        if (seconds != null) {
-                                          try {
-                                            final date = DateTime.fromMillisecondsSinceEpoch(seconds * 1000);
-                                            reportDateStr = '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
-                                          } catch (e) {
-                                            reportDateStr = 'Invalid date';
-                                          }
-                                        }
-                                      }
+                        Expanded(
+                          child: ListView.builder(
+                            padding: const EdgeInsets.all(16),
+                            itemCount: _reports!.length,
+                            itemBuilder: (context, index) {
+                              final report = _reports![index];
+                              // Safely extract reportDate - handle both string and Map (Timestamp) formats
+                              String reportDateStr = '';
+                              final reportDate = report['reportDate'];
+                              if (reportDate != null) {
+                                if (reportDate is String) {
+                                  // Already a string, format it nicely
+                                  try {
+                                    final date = DateTime.parse(reportDate);
+                                    reportDateStr = '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+                                  } catch (e) {
+                                    reportDateStr = reportDate;
+                                  }
+                                } else if (reportDate is Map) {
+                                  // Firestore Timestamp format - extract seconds
+                                  final seconds = reportDate['seconds'] ?? reportDate['_seconds'];
+                                  if (seconds != null) {
+                                    try {
+                                      final date = DateTime.fromMillisecondsSinceEpoch(seconds * 1000);
+                                      reportDateStr = '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+                                    } catch (e) {
+                                      reportDateStr = 'Invalid date';
                                     }
-                                    return Card(
-                                      margin: const EdgeInsets.only(bottom: 12),
-                                      child: ListTile(
-                                        leading: const Icon(Icons.description),
-                                        title: Text(report['title']?.toString() ?? 'Report'),
-                                        subtitle: Text(reportDateStr.isEmpty ? 'No date' : reportDateStr),
-                                        trailing: const Icon(Icons.chevron_right),
-                                        onTap: () {
-                                          final reportId = report['reportId']?.toString();
-                                          final storageUrl = report['storageUrl']?.toString();
-                                          if (reportId != null && reportId.isNotEmpty) {
-                                            // Pass report data and storageUrl for QR code access
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) => ReportDetailPage(
-                                                  reportId: reportId,
-                                                  downloadUrl: storageUrl,
-                                                  reportData: report as Map<String, dynamic>,
-                                                ),
-                                              ),
-                                            );
-                                          }
-                                        },
-                                      ),
-                                    );
+                                  }
+                                }
+                              }
+                              return Card(
+                                margin: const EdgeInsets.only(bottom: 12),
+                                child: ListTile(
+                                  leading: const Icon(Icons.description),
+                                  title: Text(report['title']?.toString() ?? 'Report'),
+                                  subtitle: Text(reportDateStr.isEmpty ? 'No date' : reportDateStr),
+                                  trailing: const Icon(Icons.chevron_right),
+                                  onTap: () {
+                                    final reportId = report['reportId']?.toString();
+                                    final storageUrl = report['storageUrl']?.toString();
+                                    if (reportId != null && reportId.isNotEmpty) {
+                                      // Pass report data and storageUrl for QR code access
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => ReportDetailPage(
+                                            reportId: reportId,
+                                            downloadUrl: storageUrl,
+                                            reportData: report as Map<String, dynamic>,
+                                          ),
+                                        ),
+                                      );
+                                    }
                                   },
+                                ),
+                              );
+                            },
                                 ),
                               ),
                             ],
